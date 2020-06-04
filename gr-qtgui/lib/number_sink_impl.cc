@@ -4,8 +4,20 @@
  *
  * This file is part of GNU Radio
  *
- * SPDX-License-Identifier: GPL-3.0-or-later
+ * GNU Radio is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3, or (at your option)
+ * any later version.
  *
+ * GNU Radio is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GNU Radio; see the file COPYING.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street,
+ * Boston, MA 02110-1301, USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -82,6 +94,7 @@ number_sink_impl::~number_sink_impl()
     // if(!d_main_gui->isClosed())
     //  d_main_gui->close();
 
+    fileWrite.close();
     delete d_argv;
 }
 
@@ -157,6 +170,7 @@ void number_sink_impl::set_color(unsigned int which, int min, int max)
 void number_sink_impl::set_label(unsigned int which, const std::string& label)
 {
     d_main_gui->setLabel(which, label);
+
 }
 
 void number_sink_impl::set_min(unsigned int which, float min)
@@ -314,6 +328,11 @@ int number_sink_impl::work(int noutput_items,
             }
         }
         d_qApplication->postEvent(d_main_gui, new NumberUpdateEvent(d));
+
+        //output to file
+        auto t2 = Clock::now();
+        double time = std::chrono::duration<double, std::milli>(t2 - t1).count();
+        fileWrite << time << "," << i << std::endl;
     }
 
     return noutput_items;
